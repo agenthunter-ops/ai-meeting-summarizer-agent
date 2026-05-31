@@ -1,0 +1,25 @@
+Meeting Title: Smart Docs Weekly Sync
+
+Neha: Thanks everyone. The main goal today is to finalize the approach for advanced Azure OpenAI monitoring through the gateway.
+
+Abhishek: I reviewed the Microsoft gateway pattern. My recommendation is to place API Management in front of Azure OpenAI so we can track usage by client, deployment, and model.
+
+Jeevan: That makes sense. We also need audit logs because Smart Docs may handle sensitive documents.
+
+Aditya: What about cost tracking? Leadership wants to know which teams are consuming the most tokens.
+
+Abhishek: We can capture prompt tokens, completion tokens, total tokens, client ID, and request timestamp in Azure Monitor. Later we can build KQL dashboards.
+
+Neha: Good. Abhishek, please create the first working POC by Friday. Jeevan, please validate the logging fields by Wednesday.
+
+Jeevan: Sure. One concern is that we should not log sensitive user content directly.
+
+Abhishek: Agreed. We can start with metadata logging only and add redaction before storing any payload.
+
+Aditya: The biggest risk is latency. If APIM adds too much overhead, teams may push back.
+
+Neha: Then let us measure baseline latency and gateway latency separately. We will review results next week.
+
+Abhishek: I will also document the tradeoff between observability and performance.
+
+Neha: Perfect. Let us close here.
