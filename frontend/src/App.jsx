@@ -37,10 +37,16 @@ Abhishek: I will also document the tradeoff between observability and performanc
 
 Neha: Perfect. Let us close here.`;
 
-const initialForm = {
+const sampleForm = {
   title: "Smart Docs Weekly Sync",
   participants: "Neha, Abhishek, Jeevan, Aditya",
   transcript_text: sampleTranscript,
+};
+
+const emptyForm = {
+  title: "",
+  participants: "",
+  transcript_text: "",
 };
 
 
@@ -221,7 +227,7 @@ function openPdfPrintPreview(markdown, meeting) {
 
 
 export default function App() {
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(emptyForm);
   const [meetings, setMeetings] = useState([]);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [visibleActionItems, setVisibleActionItems] = useState([]);
@@ -269,7 +275,7 @@ export default function App() {
   }
 
   function loadSampleTranscript() {
-    setForm(initialForm);
+    setForm(sampleForm);
     setError("");
   }
 
@@ -410,7 +416,7 @@ export default function App() {
           <div style={styles.formHeader}>
             <h2 style={styles.sectionTitle}>New Meeting</h2>
             <button type="button" onClick={loadSampleTranscript} style={styles.ghostButton}>
-              Load sample
+              Paste sample
             </button>
           </div>
 
