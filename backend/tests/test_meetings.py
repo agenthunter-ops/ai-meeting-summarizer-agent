@@ -167,6 +167,25 @@ def test_get_unknown_meeting_returns_404(client):
     assert response.status_code == 404
 
 
+def test_delete_meeting_removes_meeting_and_related_action_items(client):
+    created = create_sample_meeting(client)
+    action_item_id = created["action_items"][0]["id"]
+
+    delete_response = client.delete(f"/meetings/{created['id']}")
+
+    assert delete_response.status_code == 200
+    assert delete_response.json() == {"meeting_id": created["id"], "deleted": True}
+    assert client.get(f"/meetings/{created['id']}").status_code == 404
+    assert client.patch(f"/action-items/{action_item_id}", json={"status": "done"}).status_code == 404
+    assert client.get("/meetings").json() == []
+
+
+def test_delete_unknown_meeting_returns_404(client):
+    response = client.delete("/meetings/999")
+
+    assert response.status_code == 404
+
+
 def test_recording_completed_webhook_creates_meeting(client):
     response = client.post(
         "/webhooks/recording-completed",

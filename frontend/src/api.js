@@ -19,6 +19,13 @@ export async function getMeeting(meetingId) {
 }
 
 
+export async function deleteMeeting(meetingId) {
+  return request(`/meetings/${meetingId}`, {
+    method: "DELETE",
+  });
+}
+
+
 export async function getMeetingActionItems(meetingId, owner = "") {
   const query = owner ? `?owner=${encodeURIComponent(owner)}` : "";
   return request(`/meetings/${meetingId}/action-items${query}`);

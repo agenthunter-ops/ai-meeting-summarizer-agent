@@ -40,6 +40,7 @@ Built in the current MVP:
 - optional Gemini summarizer path
 - evidence validator
 - meeting create/list/detail APIs
+- meeting delete API
 - action item update API
 - Markdown export
 - simple React MVP screen
@@ -195,6 +196,7 @@ GET    /health
 POST   /meetings
 GET    /meetings
 GET    /meetings/{meeting_id}
+DELETE /meetings/{meeting_id}
 PATCH  /action-items/{action_item_id}
 GET    /meetings/{meeting_id}/export
 POST   /meetings/audio

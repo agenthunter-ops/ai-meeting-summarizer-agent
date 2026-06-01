@@ -20,6 +20,7 @@ from .schemas import (
     ActionItemUpdateRequest,
     ExportResponse,
     MeetingCreateRequest,
+    MeetingDeleteResponse,
     MeetingDetailResponse,
     MeetingListItem,
     RecordingCompletedWebhookRequest,
@@ -102,6 +103,20 @@ def get_meeting(
 
     # Converts the found meeting model into the full API detail response.
     return _build_meeting_detail(meeting)
+
+
+@app.delete("/meetings/{meeting_id}", response_model=MeetingDeleteResponse)
+def delete_meeting(
+    meeting_id: int,
+    db: Session = Depends(get_db),
+) -> MeetingDeleteResponse:
+    meeting = db.get(models.Meeting, meeting_id)
+    if meeting is None:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    db.delete(meeting)
+    db.commit()
+    return MeetingDeleteResponse(meeting_id=meeting_id, deleted=True)
 
 
 # Registers a GET endpoint that exports one meeting's notes as Markdown.

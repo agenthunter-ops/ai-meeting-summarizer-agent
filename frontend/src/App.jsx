@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import {
   createMeeting,
+  deleteMeeting,
   exportMeeting,
   getMeeting,
   getMeetingActionItems,
@@ -229,6 +230,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMeeting, setIsLoadingMeeting] = useState(false);
+  const [deletingMeetingId, setDeletingMeetingId] = useState(null);
 
   useEffect(() => {
     loadMeetings();
@@ -309,6 +311,36 @@ export default function App() {
       setError(err.message);
     } finally {
       setIsLoadingMeeting(false);
+    }
+  }
+
+  async function removeMeeting(meetingId) {
+    const meeting = meetings.find((item) => item.id === meetingId);
+    const confirmed = window.confirm(
+      `Delete "${meeting?.title || "this meeting"}" and its generated notes?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+    setDeletingMeetingId(meetingId);
+
+    try {
+      await deleteMeeting(meetingId);
+      await loadMeetings();
+
+      if (selectedMeeting?.id === meetingId) {
+        setSelectedMeeting(null);
+        setVisibleActionItems([]);
+        setExportedMarkdown("");
+        setOwnerFilter("");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeletingMeetingId(null);
     }
   }
 
@@ -432,21 +464,35 @@ export default function App() {
           ) : (
             <div style={styles.meetingList}>
               {meetings.map((meeting) => (
-                <button
+                <div
                   key={meeting.id}
-                  type="button"
-                  onClick={() => selectMeeting(meeting.id)}
                   style={{
-                    ...styles.meetingButton,
-                    ...(selectedMeeting?.id === meeting.id ? styles.meetingButtonActive : {}),
+                    ...styles.meetingRow,
+                    ...(selectedMeeting?.id === meeting.id ? styles.meetingRowActive : {}),
                   }}
                 >
-                  <span>
-                    <strong>{meeting.title}</strong>
-                    <small style={styles.meetingMeta}>{meeting.source_type}</small>
-                  </span>
-                  <StatusBadge status={meeting.status} />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => selectMeeting(meeting.id)}
+                    style={styles.meetingSelectButton}
+                  >
+                    <span>
+                      <strong>{meeting.title}</strong>
+                      <small style={styles.meetingMeta}>{meeting.source_type}</small>
+                    </span>
+                    <StatusBadge status={meeting.status} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeMeeting(meeting.id)}
+                    disabled={deletingMeetingId === meeting.id}
+                    aria-label={`Delete ${meeting.title}`}
+                    title="Delete meeting"
+                    style={styles.deleteMeetingButton}
+                  >
+                    {deletingMeetingId === meeting.id ? "..." : "Delete"}
+                  </button>
+                </div>
               ))}
             </div>
           )}
@@ -979,23 +1025,46 @@ const styles = {
     display: "grid",
     gap: "10px",
   },
-  meetingButton: {
+  meetingRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     gap: "12px",
     width: "100%",
-    padding: "12px",
     border: "1px solid #e2e8f0",
     borderRadius: "8px",
     background: "#ffffff",
+    overflow: "hidden",
+  },
+  meetingRowActive: {
+    borderColor: "#2563eb",
+    background: "#eff6ff",
+  },
+  meetingSelectButton: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
+    minWidth: 0,
+    padding: "12px",
+    border: 0,
+    background: "transparent",
     textAlign: "left",
     color: "#111827",
     cursor: "pointer",
   },
-  meetingButtonActive: {
-    borderColor: "#2563eb",
-    background: "#eff6ff",
+  deleteMeetingButton: {
+    alignSelf: "stretch",
+    minWidth: "72px",
+    padding: "0 12px",
+    border: 0,
+    borderLeft: "1px solid #e2e8f0",
+    background: "#fff7ed",
+    color: "#9a3412",
+    fontSize: "12px",
+    fontWeight: 900,
+    cursor: "pointer",
   },
   meetingMeta: {
     display: "block",

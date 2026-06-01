@@ -66,6 +66,11 @@ class MeetingDetailResponse(MeetingListItem):
     action_items: list[ActionItemResponse]
 
 
+class MeetingDeleteResponse(BaseModel):
+    meeting_id: int
+    deleted: bool
+
+
 class ExportResponse(BaseModel):
     meeting_id: int
     markdown: str
